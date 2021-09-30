@@ -1,1 +1,75 @@
 
+import socket
+
+sock = socket.socket()
+sock.bind(('', 9091))
+sock.listen(2)
+
+msg = ''
+
+while msg != "exit":
+    conn, addr = sock.accept()
+    print("Connected: ", addr)
+    msg = ''
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        msg += data.decode()
+        conn.send(data)
+    print(msg)
+
+conn.close()
+import socket
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('', 9091))
+client = []
+print('Server online!')
+while True:
+    data, addres = sock.recvfrom(1024)
+    print(addres[0], addres[1])
+    if addres not in client:
+        client.append(addres)
+    for clients in client:
+        if clients == addres:
+            continue
+        sock.sendto(data, clients)
+print('Server is shutting down')
+import socket
+from time import sleep
+
+sock = socket.socket()
+sock.setblocking(1)
+sock.connect(('127.0.0.1', 9091))
+
+msg = input()
+while len(msg) != 0:
+    sock.send(msg.encode())
+    data = sock.recv(1024)
+    exit_check = msg.lower()
+    if exit_check == 'exit':
+        sock.close()
+        break
+    print(data.decode())
+    msg = input()
+import socket
+import threading
+
+
+def read_sok():
+    while True:
+        data = sock.recv(1024)
+        print(data.decode('utf-8'))
+
+
+server = '127.0.0.1', 9091
+U_Name = input("Input your Nikname: ")
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('', 0))
+sock.sendto((U_Name + ' Connect to server').encode('utf-8'), server)
+stream = threading.Thread(target=read_sok)
+stream.start()
+while True:
+    message = input()
+    sock.sendto(('[' + U_Name + ']' + message).encode('utf-8'), server)
